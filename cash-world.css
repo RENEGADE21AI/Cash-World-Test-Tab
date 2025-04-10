@@ -1,4 +1,4 @@
-/* Reset and base styles */
+/* Reset */
 * {
   margin: 0;
   padding: 0;
@@ -13,23 +13,23 @@ html, body {
   font-family: sans-serif;
 }
 
-/* Scaling container (matches full screen size including nav bar) */
+/* Full game scaling container */
 #screen-container {
   width: 2400px;
-  height: 1350px; /* Full height to match scaling logic */
+  height: 1350px; /* Total space including nav bar */
   overflow: hidden;
   position: absolute;
-  top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%) scale(1); /* Default; overwritten by JS */
+  top: 50%;
+  transform: translate(-50%, -50%) scale(1); /* Will be updated dynamically */
   transform-origin: top left;
 }
 
-/* Canvas area (actual game tab inside screen-container) */
-canvas#cash-world-canvas {
+/* Canvas that represents the Cash World tab area */
+#cash-world-canvas {
+  display: block;
   width: 2400px;
   height: 1170px;
   background-color: #3a3a3a;
   border: 2px solid #555;
-  display: block;
 }
