@@ -1,14 +1,12 @@
 const canvas = document.getElementById("cash-world-canvas");
 const ctx = canvas.getContext("2d");
 
-// Grid settings
 const tileSize = 24;
 let scale = 1;
-let offsetX = 0;
-let offsetY = 0;
+let offsetX = canvas.width / 2;
+let offsetY = canvas.height / 2;
 const moveSpeed = 10;
 
-// Track input
 const keysPressed = {};
 
 document.addEventListener("keydown", (e) => {
@@ -19,7 +17,6 @@ document.addEventListener("keyup", (e) => {
   keysPressed[e.key.toLowerCase()] = false;
 });
 
-// Handle zoom
 canvas.addEventListener("wheel", (e) => {
   const zoomSpeed = 0.1;
   if (e.deltaY < 0) {
@@ -30,7 +27,6 @@ canvas.addEventListener("wheel", (e) => {
   e.preventDefault();
 });
 
-// Update loop
 function update() {
   if (keysPressed["w"]) offsetY += moveSpeed / scale;
   if (keysPressed["a"]) offsetX += moveSpeed / scale;
@@ -38,7 +34,6 @@ function update() {
   if (keysPressed["d"]) offsetX -= moveSpeed / scale;
 }
 
-// Draw loop
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.save();
@@ -46,7 +41,6 @@ function draw() {
   ctx.translate(offsetX, offsetY);
   ctx.scale(scale, scale);
 
-  // Draw grid
   const cols = Math.ceil(canvas.width / tileSize / scale) + 2;
   const rows = Math.ceil(canvas.height / tileSize / scale) + 2;
   const startX = -offsetX / scale - tileSize;
@@ -64,7 +58,6 @@ function draw() {
   ctx.restore();
 }
 
-// Game loop
 function loop() {
   update();
   draw();
