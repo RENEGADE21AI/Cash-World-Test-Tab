@@ -13,7 +13,7 @@ html, body {
   font-family: sans-serif;
 }
 
-/* Matches Course Cursor's full container */
+/* Full container matching Course Cursor (including nav bar) */
 #screen-container {
   width: 2400px;
   height: 1350px;
@@ -22,15 +22,29 @@ html, body {
   top: 50%;
   transform: translate(-50%, -50%) scale(1);
   transform-origin: top left;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
   overflow: hidden;
-  background-color: #111; /* Optional dark base */
 }
 
-/* The actual game tab content */
-#cash-world-canvas {
-  display: block;
+/* Simulated .game-content region inside the screen-container */
+.game-content {
   width: 2400px;
   height: 1170px;
+  background-color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* Full-width canvas for Cash World tab */
+#cash-world-canvas {
+  width: 2400px;
+  height: 1170px;
+  display: block;
   background-color: #3a3a3a;
   border: 2px solid #555;
 }
