@@ -3,8 +3,8 @@ const ctx = canvas.getContext("2d");
 
 const tileSize = 24;
 let scale = 1;
-let offsetX = canvas.width / 2;
-let offsetY = canvas.height / 2;
+let offsetX = 0;
+let offsetY = 0;
 const moveSpeed = 10;
 
 const keysPressed = {};
@@ -41,8 +41,8 @@ function draw() {
   ctx.translate(offsetX, offsetY);
   ctx.scale(scale, scale);
 
-  const cols = Math.ceil(canvas.width / tileSize / scale) + 2;
-  const rows = Math.ceil(canvas.height / tileSize / scale) + 2;
+  const cols = Math.ceil(canvas.width / tileSize / scale);
+  const rows = Math.ceil(canvas.height / tileSize / scale);
   const startX = -offsetX / scale - tileSize;
   const startY = -offsetY / scale - tileSize;
 
