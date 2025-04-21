@@ -33,8 +33,6 @@ html, body {
 
 #cash-world-canvas {
   display: block;
-  width: 9600px;
-  height: 4800px;
   background-color: #3a3a3a;
   border: 2px solid #555;
 }
