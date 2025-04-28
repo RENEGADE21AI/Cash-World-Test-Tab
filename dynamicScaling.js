@@ -15,6 +15,8 @@ function scaleGame() {
   screenContainer.style.top = "50%";
 
   document.documentElement.style.setProperty('--scale-factor', scaleFactor);
+
+  resizeCanvas(); // Call it AFTER scaling
 }
 
 window.addEventListener("resize", scaleGame);
