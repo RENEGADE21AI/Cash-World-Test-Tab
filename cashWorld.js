@@ -8,9 +8,16 @@ let offsetY = 0;
 const moveSpeed = 10;
 const keysPressed = {};
 
-// Movement input
 document.addEventListener("keydown", (e) => keysPressed[e.key.toLowerCase()] = true);
 document.addEventListener("keyup", (e) => keysPressed[e.key.toLowerCase()] = false);
+
+function resizeCanvas() {
+  const gameContent = document.querySelector('.game-content');
+  const rect = gameContent.getBoundingClientRect();
+
+  canvas.width = rect.width;
+  canvas.height = rect.height;
+}
 
 function update() {
   if (keysPressed["w"]) offsetY += moveSpeed;
@@ -23,12 +30,11 @@ function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.save();
 
-  // Translate for camera offset
   ctx.translate(offsetX, offsetY);
 
-  // Grid dimensions
-  const cols = Math.ceil(canvas.width / tileSize);
-  const rows = Math.ceil(canvas.height / tileSize);
+  const cols = Math.ceil(canvas.width / tileSize) + 2;
+  const rows = Math.ceil(canvas.height / tileSize) + 2;
+
   const startX = Math.floor(-offsetX / tileSize);
   const startY = Math.floor(-offsetY / tileSize);
 
@@ -50,4 +56,5 @@ function loop() {
   requestAnimationFrame(loop);
 }
 
+resizeCanvas();
 loop();
