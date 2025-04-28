@@ -11,14 +11,6 @@ const keysPressed = {};
 document.addEventListener("keydown", (e) => keysPressed[e.key.toLowerCase()] = true);
 document.addEventListener("keyup", (e) => keysPressed[e.key.toLowerCase()] = false);
 
-function resizeCanvas() {
-  const gameContent = document.querySelector('.game-content');
-  const rect = gameContent.getBoundingClientRect();
-
-  canvas.width = rect.width;
-  canvas.height = rect.height;
-}
-
 function update() {
   if (keysPressed["w"]) offsetY += moveSpeed;
   if (keysPressed["a"]) offsetX += moveSpeed;
