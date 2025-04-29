@@ -7,7 +7,7 @@ function scaleGame() {
   const screenWidth = window.innerWidth;
   const screenHeight = window.innerHeight;
 
-  let scaleFactor = Math.min(screenWidth / targetWidth, screenHeight / targetHeight);
+  const scaleFactor = Math.min(screenWidth / targetWidth, screenHeight / targetHeight);
 
   screenContainer.style.transform = `translate(-50%, -50%) scale(${scaleFactor})`;
   screenContainer.style.position = "absolute";
@@ -15,8 +15,6 @@ function scaleGame() {
   screenContainer.style.top = "50%";
 
   document.documentElement.style.setProperty('--scale-factor', scaleFactor);
-
-  resizeCanvas(); // Call it AFTER scaling
 }
 
 window.addEventListener("resize", scaleGame);
