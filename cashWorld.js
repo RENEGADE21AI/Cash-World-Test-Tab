@@ -1,7 +1,6 @@
 const canvas = document.getElementById("cash-world-canvas");
 const ctx = canvas.getContext("2d");
 
-// Settings
 const tileSize = 24;
 let offsetX = 0;
 let offsetY = 0;
@@ -24,8 +23,8 @@ function draw() {
 
   ctx.translate(offsetX, offsetY);
 
-  const cols = Math.ceil(canvas.width / tileSize) + 2;
-  const rows = Math.ceil(canvas.height / tileSize) + 2;
+  const cols = Math.ceil(canvas.width / tileSize);
+  const rows = Math.ceil(canvas.height / tileSize);
 
   const startX = Math.floor(-offsetX / tileSize);
   const startY = Math.floor(-offsetY / tileSize);
@@ -48,5 +47,4 @@ function loop() {
   requestAnimationFrame(loop);
 }
 
-resizeCanvas();
 loop();
