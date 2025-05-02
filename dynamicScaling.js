@@ -15,6 +15,8 @@ function scaleGame() {
   screenContainer.style.top = "50%";
 
   document.documentElement.style.setProperty('--scale-factor', scaleFactor);
+
+  // We no longer call resizeCanvas(), since it’s unnecessary
 }
 
 window.addEventListener("resize", scaleGame);
