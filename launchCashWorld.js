@@ -1,5 +1,5 @@
 // launchCashWorld.js
 window.onload = () => {
-  // Updated to point to the new folder
+  // Must match exact folder + filename case
   window.location.href = "cashWorldTab/cashWorldTab.html";
 };
