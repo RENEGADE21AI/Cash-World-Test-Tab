@@ -1,6 +1,8 @@
 function scaleGame() {
   const screenContainer = document.getElementById("screen-container");
 
+  if (!screenContainer) return; // wait until DOM is ready
+
   const targetWidth = 2400;
   const targetHeight = 1350;
 
@@ -15,9 +17,13 @@ function scaleGame() {
   screenContainer.style.top = "50%";
 
   document.documentElement.style.setProperty('--scale-factor', scaleFactor);
+}
 
-  // We no longer call resizeCanvas(), since it’s unnecessary
+// Run immediately if DOM is already available, or defer
+if (document.readyState === "complete" || document.readyState === "interactive") {
+  scaleGame();
+} else {
+  window.addEventListener("DOMContentLoaded", scaleGame);
 }
 
 window.addEventListener("resize", scaleGame);
-window.addEventListener("load", scaleGame);
