@@ -20,12 +20,10 @@ function update() {
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.save();
-
   ctx.translate(offsetX, offsetY);
 
   const cols = Math.ceil(canvas.width / tileSize);
   const rows = Math.ceil(canvas.height / tileSize);
-
   const startX = Math.floor(-offsetX / tileSize);
   const startY = Math.floor(-offsetY / tileSize);
 
