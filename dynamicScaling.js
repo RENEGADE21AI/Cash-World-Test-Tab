@@ -1,21 +1,29 @@
 function scaleGame() {
-    const screenContainer = document.getElementById("screen-container");
+  const screenContainer = document.getElementById("screen-container");
 
-    const targetWidth = 2400;
-    const targetHeight = 1350;
+  if (!screenContainer) return; // wait until DOM is ready
 
-    const screenWidth = window.innerWidth;
-    const screenHeight = window.innerHeight;
+  const targetWidth = 2400;
+  const targetHeight = 1350;
 
-    const scaleFactor = Math.min(screenWidth / targetWidth, screenHeight / targetHeight);
+  const screenWidth = window.innerWidth;
+  const screenHeight = window.innerHeight;
 
-    screenContainer.style.transform = `translate(-50%, -50%) scale(${scaleFactor})`;
-    screenContainer.style.position = "absolute";
-    screenContainer.style.left = "50%";
-    screenContainer.style.top = "50%";
+  const scaleFactor = Math.min(screenWidth / targetWidth, screenHeight / targetHeight);
 
-    document.documentElement.style.setProperty('--scale-factor', scaleFactor);
+  screenContainer.style.transform = `translate(-50%, -50%) scale(${scaleFactor})`;
+  screenContainer.style.position = "absolute";
+  screenContainer.style.left = "50%";
+  screenContainer.style.top = "50%";
+
+  document.documentElement.style.setProperty('--scale-factor', scaleFactor);
+}
+
+// Run immediately if DOM is already available, or defer
+if (document.readyState === "complete" || document.readyState === "interactive") {
+  scaleGame();
+} else {
+  window.addEventListener("DOMContentLoaded", scaleGame);
 }
 
 window.addEventListener("resize", scaleGame);
-window.addEventListener("load", scaleGame);
