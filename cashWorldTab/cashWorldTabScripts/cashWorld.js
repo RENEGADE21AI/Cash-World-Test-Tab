@@ -20,18 +20,25 @@ function update() {
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.save();
-  ctx.translate(offsetX, offsetY);
 
-  const cols = Math.ceil(canvas.width / tileSize);
-  const rows = Math.ceil(canvas.height / tileSize);
-  const startX = Math.floor(-offsetX / tileSize);
-  const startY = Math.floor(-offsetY / tileSize);
+  // Center and apply faux-isometric transform
+  ctx.translate(canvas.width / 2 + offsetX, canvas.height / 2 + offsetY);
+  ctx.scale(Math.SQRT1_2, Math.SQRT1_2); // ≈ scale(0.707, 0.707)
+  ctx.rotate(Math.PI / 4); // 45° in radians
 
   ctx.strokeStyle = "#555";
   ctx.lineWidth = 1;
 
-  for (let x = startX; x < startX + cols; x++) {
-    for (let y = startY; y < startY + rows; y++) {
+  const cols = Math.ceil(canvas.width / tileSize);
+  const rows = Math.ceil(canvas.height / tileSize);
+
+  const startX = -cols;
+  const startY = -rows;
+  const endX = cols;
+  const endY = rows;
+
+  for (let x = startX; x < endX; x++) {
+    for (let y = startY; y < endY; y++) {
       ctx.strokeRect(x * tileSize, y * tileSize, tileSize, tileSize);
     }
   }
