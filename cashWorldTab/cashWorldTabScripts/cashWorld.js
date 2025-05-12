@@ -1,7 +1,10 @@
 const canvas = document.getElementById("cash-world-canvas");
 const ctx = canvas.getContext("2d");
 
-const tileSize = 24;
+// Faux-isometric tile dimensions
+const tileWidth = 128;
+const tileHeight = 64;
+
 let offsetX = 0;
 let offsetY = 0;
 const moveSpeed = 10;
@@ -21,25 +24,23 @@ function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.save();
 
-  // Center and apply faux-isometric transform
+  // Center + rotate to faux-isometric
   ctx.translate(canvas.width / 2 + offsetX, canvas.height / 2 + offsetY);
-  ctx.scale(Math.SQRT1_2, Math.SQRT1_2); // ≈ scale(0.707, 0.707)
-  ctx.rotate(Math.PI / 4); // 45° in radians
+  ctx.scale(Math.SQRT1_2, Math.SQRT1_2); // ≈ 0.707
+  ctx.rotate(Math.PI / 4); // 45 degrees
 
   ctx.strokeStyle = "#555";
   ctx.lineWidth = 1;
 
-  const cols = Math.ceil(canvas.width / tileSize);
-  const rows = Math.ceil(canvas.height / tileSize);
+  const cols = Math.ceil(canvas.width / tileWidth) + 2;
+  const rows = Math.ceil(canvas.height / tileHeight) + 2;
 
   const startX = -cols;
   const startY = -rows;
-  const endX = cols;
-  const endY = rows;
 
-  for (let x = startX; x < endX; x++) {
-    for (let y = startY; y < endY; y++) {
-      ctx.strokeRect(x * tileSize, y * tileSize, tileSize, tileSize);
+  for (let x = startX; x < startX + cols; x++) {
+    for (let y = startY; y < startY + rows; y++) {
+      ctx.strokeRect(x * tileWidth, y * tileHeight, tileWidth, tileHeight);
     }
   }
 
