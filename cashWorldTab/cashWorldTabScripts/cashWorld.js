@@ -66,22 +66,23 @@ function drawIsometricTile(x, y, highlight = false) {
 }
 
 function screenToGrid(mouseX, mouseY) {
-  const centerX = canvas.width / 2;
-  const centerY = canvas.height / 2;
-
-  // Translate screen coordinates to world coordinates
-  const x = (mouseX - centerX - offsetX) / zoom;
-  const y = (mouseY - centerY - offsetY) / zoom;
-
   const halfW = tileWidth / 2;
   const halfH = tileHeight / 2;
 
-  const gridX = Math.floor((x / halfW + y / halfH) / 2);
-  const gridY = Math.floor((y / halfH - x / halfW) / 2);
+  // Step 1: Get center of canvas
+  const canvasCenterX = canvas.width / 2;
+  const canvasCenterY = canvas.height / 2;
+
+  // Step 2: Convert mouse coords to world coords
+  const worldX = (mouseX - canvasCenterX - offsetX) / zoom;
+  const worldY = (mouseY - canvasCenterY - offsetY) / zoom;
+
+  // Step 3: Apply inverse isometric projection
+  const gridX = Math.floor((worldX / halfW + worldY / halfH) / 2);
+  const gridY = Math.floor((worldY / halfH - worldX / halfW) / 2);
 
   return { gridX, gridY };
 }
-
 
 
 function draw() {
