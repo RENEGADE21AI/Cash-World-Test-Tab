@@ -9,7 +9,7 @@ let offsetY = 0;
 let zoom = 1;
 const moveSpeed = 10;
 const zoomStep = 0.1;
-const zoomMin = 0.3;
+const zoomMin = 0.05;
 const zoomMax = 2.5;
 
 const gridCols = 300;
@@ -72,10 +72,12 @@ function screenToGrid(mouseX, mouseY) {
   const x = (mouseX - centerX) / zoom;
   const y = (mouseY - centerY) / zoom;
 
-  const gridX = Math.floor((y / tileHeight + x / tileWidth));
-  const gridY = Math.floor((y / tileHeight - x / tileWidth));
+  const gridX = Math.floor((x / (tileWidth / 2) + y / (tileHeight / 2)) / 2);
+  const gridY = Math.floor((y / (tileHeight / 2) - x / (tileWidth / 2)) / 2);
+
   return { gridX, gridY };
 }
+
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
