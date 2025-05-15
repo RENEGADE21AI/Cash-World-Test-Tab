@@ -66,17 +66,22 @@ function drawIsometricTile(x, y, highlight = false) {
 }
 
 function screenToGrid(mouseX, mouseY) {
-  const centerX = canvas.width / 2 + offsetX;
-  const centerY = canvas.height / 2 + offsetY;
+  const centerX = canvas.width / 2;
+  const centerY = canvas.height / 2;
 
-  const x = (mouseX - centerX) / zoom;
-  const y = (mouseY - centerY) / zoom;
+  // Translate screen coordinates to world coordinates
+  const x = (mouseX - centerX - offsetX) / zoom;
+  const y = (mouseY - centerY - offsetY) / zoom;
 
-  const gridX = Math.floor((x / (tileWidth / 2) + y / (tileHeight / 2)) / 2);
-  const gridY = Math.floor((y / (tileHeight / 2) - x / (tileWidth / 2)) / 2);
+  const halfW = tileWidth / 2;
+  const halfH = tileHeight / 2;
+
+  const gridX = Math.floor((x / halfW + y / halfH) / 2);
+  const gridY = Math.floor((y / halfH - x / halfW) / 2);
 
   return { gridX, gridY };
 }
+
 
 
 function draw() {
