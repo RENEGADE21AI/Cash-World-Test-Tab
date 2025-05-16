@@ -66,22 +66,25 @@ function drawIsometricTile(x, y, highlight = false) {
 }
 
 function screenToGrid(mouseX, mouseY) {
-  const canvasCenterX = canvas.width / 2;
-  const canvasCenterY = canvas.height / 2;
+  const rect = canvas.getBoundingClientRect();
 
-  // Step 1: convert mouse screen coords to canvas space
-  const canvasX = (mouseX - canvasCenterX) / zoom - offsetX;
-  const canvasY = (mouseY - canvasCenterY) / zoom - offsetY;
+  const canvasX = (mouseX - rect.left);
+  const canvasY = (mouseY - rect.top);
 
+  // Step 1: convert screen to world position
+  const worldX = (canvasX - canvas.width / 2 - offsetX) / zoom;
+  const worldY = (canvasY - canvas.height / 2 - offsetY) / zoom;
+
+  // Step 2: convert world position to grid
   const halfW = tileWidth / 2;
   const halfH = tileHeight / 2;
 
-  // Step 2: convert canvas (world space) to isometric grid
-  const gridX = Math.floor((canvasY / halfH + canvasX / halfW) / 2);
-  const gridY = Math.floor((canvasY / halfH - canvasX / halfW) / 2);
+  const gridX = Math.floor((worldY / halfH + worldX / halfW) / 2);
+  const gridY = Math.floor((worldY / halfH - worldX / halfW) / 2);
 
   return { gridX, gridY };
 }
+
 
 
 function draw() {
