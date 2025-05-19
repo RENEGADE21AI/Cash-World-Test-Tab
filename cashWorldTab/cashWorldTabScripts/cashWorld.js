@@ -67,26 +67,29 @@ function drawIsometricTile(x, y, highlight = false) {
   }
 }
 
-// NEW: Accurate mouse → grid coordinate conversion
+// 🧠 Accurate mouse → grid conversion with scaling fix
 function screenToGrid(mouseX, mouseY) {
   const rect = canvas.getBoundingClientRect();
 
-  // 1. Convert screen space to canvas space
-  const canvasX = (mouseX - rect.left);
-  const canvasY = (mouseY - rect.top);
+  // Get current screen scale factor from CSS
+  const scaleFactor = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--scale-factor')) || 1;
 
-  // 2. Convert to world space
-  const worldX = (canvasX - canvas.width / 2) / zoom - offsetX;
-  const worldY = (canvasY - canvas.height / 2) / zoom - offsetY;
+  // Adjust mouse to internal canvas coordinates
+  const scaledMouseX = (mouseX - rect.left) / scaleFactor;
+  const scaledMouseY = (mouseY - rect.top) / scaleFactor;
 
-  // 3. Apply inverse isometric projection
+  // Convert to world space
+  const worldX = (scaledMouseX - canvas.width / 2) / zoom - offsetX;
+  const worldY = (scaledMouseY - canvas.height / 2) / zoom - offsetY;
+
+  // Inverse isometric projection
   const gridX = Math.round((worldY / (tileHeight / 2) + worldX / (tileWidth / 2)) / 2);
   const gridY = Math.round((worldY / (tileHeight / 2) - worldX / (tileWidth / 2)) / 2);
 
   return { gridX, gridY };
 }
 
-// Rendering loop
+// Draw the entire grid
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.save();
