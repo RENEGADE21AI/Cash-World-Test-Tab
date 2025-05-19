@@ -1,9 +1,11 @@
 const canvas = document.getElementById("cash-world-canvas");
 const ctx = canvas.getContext("2d");
 
+// Isometric tile size
 const tileWidth = 128;
 const tileHeight = 64;
 
+// Camera settings
 let offsetX = 0;
 let offsetY = 0;
 let zoom = 1;
@@ -16,17 +18,16 @@ const gridCols = 300;
 const gridRows = 300;
 
 const keysPressed = {};
-
 let mouseX = 0;
 let mouseY = 0;
 
+// Input events
 document.addEventListener("keydown", (e) => {
   keysPressed[e.key.toLowerCase()] = true;
 });
 document.addEventListener("keyup", (e) => {
   keysPressed[e.key.toLowerCase()] = false;
 });
-
 canvas.addEventListener("wheel", (e) => {
   e.preventDefault();
   const delta = Math.sign(e.deltaY);
@@ -36,13 +37,13 @@ canvas.addEventListener("wheel", (e) => {
     zoom = Math.min(zoomMax, zoom + zoomStep);
   }
 });
-
 canvas.addEventListener("mousemove", (e) => {
   const rect = canvas.getBoundingClientRect();
   mouseX = e.clientX - rect.left;
   mouseY = e.clientY - rect.top;
 });
 
+// Movement logic
 function update() {
   if (keysPressed["w"] || keysPressed["arrowup"]) offsetY += moveSpeed;
   if (keysPressed["a"] || keysPressed["arrowleft"]) offsetX += moveSpeed;
@@ -50,6 +51,7 @@ function update() {
   if (keysPressed["d"] || keysPressed["arrowright"]) offsetX -= moveSpeed;
 }
 
+// Tile rendering
 function drawIsometricTile(x, y, highlight = false) {
   ctx.beginPath();
   ctx.moveTo(x, y);
@@ -60,43 +62,38 @@ function drawIsometricTile(x, y, highlight = false) {
   ctx.stroke();
 
   if (highlight) {
-    ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
+    ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
     ctx.fill();
   }
 }
 
+// NEW: Accurate mouse → grid coordinate conversion
 function screenToGrid(mouseX, mouseY) {
   const rect = canvas.getBoundingClientRect();
 
+  // 1. Convert screen space to canvas space
   const canvasX = (mouseX - rect.left);
   const canvasY = (mouseY - rect.top);
 
-  // Step 1: convert screen to world position
-  const worldX = (canvasX - canvas.width / 2 - offsetX) / zoom;
-  const worldY = (canvasY - canvas.height / 2 - offsetY) / zoom;
+  // 2. Convert to world space
+  const worldX = (canvasX - canvas.width / 2) / zoom - offsetX;
+  const worldY = (canvasY - canvas.height / 2) / zoom - offsetY;
 
-  // Step 2: convert world position to grid
-  const halfW = tileWidth / 2;
-  const halfH = tileHeight / 2;
-
-  const gridX = Math.floor((worldY / halfH + worldX / halfW) / 2);
-  const gridY = Math.floor((worldY / halfH - worldX / halfW) / 2);
+  // 3. Apply inverse isometric projection
+  const gridX = Math.round((worldY / (tileHeight / 2) + worldX / (tileWidth / 2)) / 2);
+  const gridY = Math.round((worldY / (tileHeight / 2) - worldX / (tileWidth / 2)) / 2);
 
   return { gridX, gridY };
 }
 
-
-
+// Rendering loop
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.save();
 
-  const centerX = canvas.width / 2 + offsetX;
-  const centerY = canvas.height / 2 + offsetY;
-
-  ctx.translate(centerX, centerY);
+  // Apply camera transform
+  ctx.translate(canvas.width / 2 + offsetX, canvas.height / 2 + offsetY);
   ctx.scale(zoom, zoom);
-
   ctx.strokeStyle = "#555";
   ctx.lineWidth = 1 / zoom;
 
@@ -114,6 +111,7 @@ function draw() {
   ctx.restore();
 }
 
+// Game loop
 function loop() {
   update();
   draw();
