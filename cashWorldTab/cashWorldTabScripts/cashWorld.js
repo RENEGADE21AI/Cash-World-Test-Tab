@@ -1,8 +1,8 @@
 const canvas = document.getElementById("cash-world-canvas");
 const ctx = canvas.getContext("2d");
 
-const tileWidth = 128;
-const tileHeight = 64;
+const tileWidth = 64;
+const tileHeight = 32;
 
 let offsetX = 0;
 let offsetY = 0;
