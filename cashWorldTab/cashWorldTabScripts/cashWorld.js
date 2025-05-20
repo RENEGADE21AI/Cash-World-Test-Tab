@@ -1,11 +1,9 @@
 const canvas = document.getElementById("cash-world-canvas");
 const ctx = canvas.getContext("2d");
 
-// Isometric tile size
 const tileWidth = 128;
 const tileHeight = 64;
 
-// Camera settings
 let offsetX = 0;
 let offsetY = 0;
 let zoom = 1;
@@ -21,21 +19,14 @@ const keysPressed = {};
 let mouseX = 0;
 let mouseY = 0;
 
-// Input events
-document.addEventListener("keydown", (e) => {
-  keysPressed[e.key.toLowerCase()] = true;
-});
-document.addEventListener("keyup", (e) => {
-  keysPressed[e.key.toLowerCase()] = false;
-});
+// Keyboard & zoom input
+document.addEventListener("keydown", (e) => keysPressed[e.key.toLowerCase()] = true);
+document.addEventListener("keyup", (e) => keysPressed[e.key.toLowerCase()] = false);
 canvas.addEventListener("wheel", (e) => {
   e.preventDefault();
   const delta = Math.sign(e.deltaY);
-  if (delta > 0) {
-    zoom = Math.max(zoomMin, zoom - zoomStep);
-  } else {
-    zoom = Math.min(zoomMax, zoom + zoomStep);
-  }
+  if (delta > 0) zoom = Math.max(zoomMin, zoom - zoomStep);
+  else zoom = Math.min(zoomMax, zoom + zoomStep);
 });
 canvas.addEventListener("mousemove", (e) => {
   const rect = canvas.getBoundingClientRect();
@@ -43,7 +34,6 @@ canvas.addEventListener("mousemove", (e) => {
   mouseY = e.clientY - rect.top;
 });
 
-// Movement logic
 function update() {
   if (keysPressed["w"] || keysPressed["arrowup"]) offsetY += moveSpeed;
   if (keysPressed["a"] || keysPressed["arrowleft"]) offsetX += moveSpeed;
@@ -51,7 +41,6 @@ function update() {
   if (keysPressed["d"] || keysPressed["arrowright"]) offsetX -= moveSpeed;
 }
 
-// Tile rendering
 function drawIsometricTile(x, y, highlight = false) {
   ctx.beginPath();
   ctx.moveTo(x, y);
@@ -67,45 +56,66 @@ function drawIsometricTile(x, y, highlight = false) {
   }
 }
 
-// 🧠 Accurate mouse → grid conversion with scaling fix
-function screenToGrid(mouseX, mouseY) {
-  const rect = canvas.getBoundingClientRect();
-
-  // Get current screen scale factor from CSS
-  const scaleFactor = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--scale-factor')) || 1;
-
-  // Adjust mouse to internal canvas coordinates
-  const scaledMouseX = (mouseX - rect.left) / scaleFactor;
-  const scaledMouseY = (mouseY - rect.top) / scaleFactor;
-
-  // Convert to world space
-  const worldX = (scaledMouseX - canvas.width / 2) / zoom - offsetX;
-  const worldY = (scaledMouseY - canvas.height / 2) / zoom - offsetY;
-
-  // Inverse isometric projection
-  const gridX = Math.round((worldY / (tileHeight / 2) + worldX / (tileWidth / 2)) / 2);
-  const gridY = Math.round((worldY / (tileHeight / 2) - worldX / (tileWidth / 2)) / 2);
-
-  return { gridX, gridY };
+// Forward projection: grid → screen coords
+function gridToScreen(gridX, gridY) {
+  const screenX = (gridX - gridY) * (tileWidth / 2);
+  const screenY = (gridX + gridY) * (tileHeight / 2);
+  return { x: screenX, y: screenY };
 }
 
-// Draw the entire grid
+// Point-in-diamond test (for hover accuracy)
+function isPointInDiamond(px, py, tileX, tileY) {
+  const cx = tileX;
+  const cy = tileY + tileHeight / 2;
+  const dx = Math.abs(px - cx) / (tileWidth / 2);
+  const dy = Math.abs(py - cy) / (tileHeight / 2);
+  return dx + dy <= 1;
+}
+
+// Accurate hover detection using diamond hit test
+function findHoveredTile(mouseX, mouseY) {
+  const scaleFactor = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--scale-factor')) || 1;
+  const rect = canvas.getBoundingClientRect();
+
+  const scaledX = (mouseX - rect.left) / scaleFactor;
+  const scaledY = (mouseY - rect.top) / scaleFactor;
+
+  const worldX = (scaledX - canvas.width / 2) / zoom - offsetX;
+  const worldY = (scaledY - canvas.height / 2) / zoom - offsetY;
+
+  // Estimate tile location
+  const estX = Math.floor((worldY / (tileHeight / 2) + worldX / (tileWidth / 2)) / 2);
+  const estY = Math.floor((worldY / (tileHeight / 2) - worldX / (tileWidth / 2)) / 2);
+
+  // Search 3x3 surrounding tiles for accurate hit
+  for (let dx = -1; dx <= 1; dx++) {
+    for (let dy = -1; dy <= 1; dy++) {
+      const gx = estX + dx;
+      const gy = estY + dy;
+      const { x: sx, y: sy } = gridToScreen(gx, gy);
+      if (isPointInDiamond(worldX, worldY, sx, sy)) {
+        return { gridX: gx, gridY: gy };
+      }
+    }
+  }
+
+  return { gridX: estX, gridY: estY }; // fallback
+}
+
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.save();
 
-  // Apply camera transform
   ctx.translate(canvas.width / 2 + offsetX, canvas.height / 2 + offsetY);
   ctx.scale(zoom, zoom);
   ctx.strokeStyle = "#555";
   ctx.lineWidth = 1 / zoom;
 
-  const { gridX: hoverX, gridY: hoverY } = screenToGrid(mouseX, mouseY);
+  const { gridX: hoverX, gridY: hoverY } = findHoveredTile(mouseX, mouseY);
 
   for (let x = -gridCols; x < gridCols; x++) {
     for (let y = -gridRows; y < gridRows; y++) {
-      const screenX = (x - y) * (tileWidth / 2);
-      const screenY = (x + y) * (tileHeight / 2);
+      const { x: screenX, y: screenY } = gridToScreen(x, y);
       const isHover = x === hoverX && y === hoverY;
       drawIsometricTile(screenX, screenY, isHover);
     }
@@ -114,7 +124,6 @@ function draw() {
   ctx.restore();
 }
 
-// Game loop
 function loop() {
   update();
   draw();
