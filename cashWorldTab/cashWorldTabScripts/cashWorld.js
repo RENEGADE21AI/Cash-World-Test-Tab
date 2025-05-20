@@ -19,9 +19,13 @@ const keysPressed = {};
 let mouseX = 0;
 let mouseY = 0;
 
-// Keyboard & zoom input
-document.addEventListener("keydown", (e) => keysPressed[e.key.toLowerCase()] = true);
-document.addEventListener("keyup", (e) => keysPressed[e.key.toLowerCase()] = false);
+// Input handling
+document.addEventListener("keydown", (e) => {
+  keysPressed[e.key.toLowerCase()] = true;
+});
+document.addEventListener("keyup", (e) => {
+  keysPressed[e.key.toLowerCase()] = false;
+});
 canvas.addEventListener("wheel", (e) => {
   e.preventDefault();
   const delta = Math.sign(e.deltaY);
@@ -41,6 +45,23 @@ function update() {
   if (keysPressed["d"] || keysPressed["arrowright"]) offsetX -= moveSpeed;
 }
 
+// Project grid → screen
+function gridToScreen(x, y) {
+  return {
+    x: (x - y) * (tileWidth / 2),
+    y: (x + y) * (tileHeight / 2),
+  };
+}
+
+// Check if a point is in a diamond
+function isMouseInsideTile(mouseX, mouseY, screenX, screenY) {
+  const cx = screenX;
+  const cy = screenY + tileHeight / 2;
+  const dx = Math.abs(mouseX - cx) / (tileWidth / 2);
+  const dy = Math.abs(mouseY - cy) / (tileHeight / 2);
+  return dx + dy <= 1;
+}
+
 function drawIsometricTile(x, y, highlight = false) {
   ctx.beginPath();
   ctx.moveTo(x, y);
@@ -56,68 +77,33 @@ function drawIsometricTile(x, y, highlight = false) {
   }
 }
 
-// Forward projection: grid → screen coords
-function gridToScreen(gridX, gridY) {
-  const screenX = (gridX - gridY) * (tileWidth / 2);
-  const screenY = (gridX + gridY) * (tileHeight / 2);
-  return { x: screenX, y: screenY };
-}
-
-// Point-in-diamond test (for hover accuracy)
-function isPointInDiamond(px, py, tileX, tileY) {
-  const cx = tileX;
-  const cy = tileY + tileHeight / 2;
-  const dx = Math.abs(px - cx) / (tileWidth / 2);
-  const dy = Math.abs(py - cy) / (tileHeight / 2);
-  return dx + dy <= 1;
-}
-
-// Accurate hover detection using diamond hit test
-function findHoveredTile(mouseX, mouseY) {
-  const scaleFactor = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--scale-factor')) || 1;
-  const rect = canvas.getBoundingClientRect();
-
-  const scaledX = (mouseX - rect.left) / scaleFactor;
-  const scaledY = (mouseY - rect.top) / scaleFactor;
-
-  const worldX = (scaledX - canvas.width / 2) / zoom - offsetX;
-  const worldY = (scaledY - canvas.height / 2) / zoom - offsetY;
-
-  // Estimate tile location
-  const estX = Math.floor((worldY / (tileHeight / 2) + worldX / (tileWidth / 2)) / 2);
-  const estY = Math.floor((worldY / (tileHeight / 2) - worldX / (tileWidth / 2)) / 2);
-
-  // Search 3x3 surrounding tiles for accurate hit
-  for (let dx = -1; dx <= 1; dx++) {
-    for (let dy = -1; dy <= 1; dy++) {
-      const gx = estX + dx;
-      const gy = estY + dy;
-      const { x: sx, y: sy } = gridToScreen(gx, gy);
-      if (isPointInDiamond(worldX, worldY, sx, sy)) {
-        return { gridX: gx, gridY: gy };
-      }
-    }
-  }
-
-  return { gridX: estX, gridY: estY }; // fallback
-}
-
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.save();
 
   ctx.translate(canvas.width / 2 + offsetX, canvas.height / 2 + offsetY);
   ctx.scale(zoom, zoom);
+
   ctx.strokeStyle = "#555";
   ctx.lineWidth = 1 / zoom;
 
-  const { gridX: hoverX, gridY: hoverY } = findHoveredTile(mouseX, mouseY);
+  // Adjusted mouse position into world space
+  const scaleFactor = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--scale-factor')) || 1;
+  const worldMouseX = (mouseX / scaleFactor - canvas.width / 2) / zoom - offsetX;
+  const worldMouseY = (mouseY / scaleFactor - canvas.height / 2) / zoom - offsetY;
+
+  let hoverTile = null;
 
   for (let x = -gridCols; x < gridCols; x++) {
     for (let y = -gridRows; y < gridRows; y++) {
       const { x: screenX, y: screenY } = gridToScreen(x, y);
-      const isHover = x === hoverX && y === hoverY;
-      drawIsometricTile(screenX, screenY, isHover);
+      const isHovered = isMouseInsideTile(worldMouseX, worldMouseY, screenX, screenY);
+
+      if (isHovered && !hoverTile) {
+        hoverTile = { x, y };
+      }
+
+      drawIsometricTile(screenX, screenY, isHovered);
     }
   }
 
