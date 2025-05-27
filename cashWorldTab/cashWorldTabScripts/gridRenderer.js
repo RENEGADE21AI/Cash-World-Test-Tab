@@ -1,4 +1,11 @@
-import { gridToScreen, isMouseInsideTile, getWorldMouseCoords, tileWidth, tileHeight } from "./tileMath.js";
+import {
+  gridToScreen,
+  isMouseInsideTile,
+  getWorldMouseCoords,
+  getVisibleTileBounds,
+  tileWidth,
+  tileHeight
+} from "./tileMath.js";
 import { zoom, offsetX, offsetY } from "./camera.js";
 import { tileMap, worldWidth, worldHeight } from "./tileData.js";
 import { biomeImages } from "./tileSprites.js";
@@ -15,16 +22,23 @@ export function drawGrid() {
   ctx.imageSmoothingEnabled = false;
 
   const { x: worldMouseX, y: worldMouseY } = getWorldMouseCoords();
+  const bounds = getVisibleTileBounds(canvas);
   let hoverTile = null;
 
-  for (let x = 0; x < worldWidth; x++) {
-    for (let y = 0; y < worldHeight; y++) {
+  for (let x = bounds.startX; x <= bounds.endX; x++) {
+    if (x < 0 || x >= worldWidth) continue;
+
+    for (let y = bounds.startY; y <= bounds.endY; y++) {
+      if (y < 0 || y >= worldHeight) continue;
+
       const { x: screenX, y: screenY } = gridToScreen(x, y);
       const isHovered = isMouseInsideTile(worldMouseX, worldMouseY, screenX, screenY);
 
       const biome = tileMap[x][y].biome;
       const sprite = biomeImages[biome.toLowerCase()];
-      if (sprite) ctx.drawImage(sprite, screenX - tileWidth / 2, screenY, tileWidth, tileHeight);
+      if (sprite) {
+        ctx.drawImage(sprite, screenX - tileWidth / 2, screenY, tileWidth, tileHeight);
+      }
 
       if (isHovered && !hoverTile) {
         ctx.strokeStyle = "#fff";
