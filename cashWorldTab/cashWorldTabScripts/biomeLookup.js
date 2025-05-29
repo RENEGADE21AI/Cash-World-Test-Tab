@@ -1,14 +1,12 @@
+// biomeLookup.js - Determine biome from temp/humidity
+
+// Simple example biome selection
 export function getBiome(temp, humidity) {
-  if (temp < 0.3) {
-    if (humidity < 0.3) return "tundra";
-    if (humidity < 0.6) return "forest";
-    return "swamp";
-  } else if (temp < 0.6) {
-    if (humidity < 0.3) return "desert";
-    if (humidity < 0.6) return "plains";
-    return "jungle";
-  } else {
-    if (humidity < 0.3) return "desert";
-    return "jungle";
-  }
+    if (temp > 0.7) {
+        return humidity < 0.3 ? 'desert' : 'grassland';
+    }
+    if (temp > 0.3) {
+        return humidity > 0.5 ? 'forest' : 'plains';
+    }
+    return 'tundra';
 }
