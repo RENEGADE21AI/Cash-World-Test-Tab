@@ -1,33 +1,35 @@
-export let offsetX = 0;
-export let offsetY = 0;
-export let zoom = 1;
+// camera.js - Camera position and zoom handling
 
-const moveSpeed = 100;
-const zoomStep = 0.1;
-const zoomMin = 0.05;
-const zoomMax = 2.5;
+export class Camera {
+    constructor(canvas) {
+        this.canvas = canvas;
+        this.width = canvas.width;
+        this.height = canvas.height;
+        this.x = 0;  // World center X
+        this.y = 0;  // World center Y
+        this.scale = 1; // Zoom factor
 
-export const keysPressed = {};
-export let mouseX = 0;
-export let mouseY = 0;
+        // Zoom with mouse wheel
+        canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            // Zoom in/out
+            const zoomAmount = 1 - e.deltaY * 0.001;
+            const oldScale = this.scale;
+            this.scale = Math.max(0.1, Math.min(this.scale * zoomAmount, 5));
+            // Optional: adjust camera.x/y to zoom around cursor (not shown here)
+        });
+    }
 
-export function updateCamera() {
-  if (keysPressed["w"] || keysPressed["arrowup"]) offsetY += moveSpeed;
-  if (keysPressed["a"] || keysPressed["arrowleft"]) offsetX += moveSpeed;
-  if (keysPressed["s"] || keysPressed["arrowdown"]) offsetY -= moveSpeed;
-  if (keysPressed["d"] || keysPressed["arrowright"]) offsetX -= moveSpeed;
-}
+    // Pan camera by delta
+    pan(dx, dy) {
+        this.x += dx / this.scale;
+        this.y += dy / this.scale;
+    }
 
-export function zoomIn() {
-  zoom = Math.min(zoomMax, zoom + zoomStep);
-}
-
-export function zoomOut() {
-  zoom = Math.max(zoomMin, zoom - zoomStep);
-}
-
-export function updateMousePosition(e) {
-  const rect = document.getElementById("cash-world-canvas").getBoundingClientRect();
-  mouseX = e.clientX - rect.left;
-  mouseY = e.clientY - rect.top;
+    // Convert screen coordinates to world coords (accounting for camera center and zoom)
+    screenToWorld(screenX, screenY) {
+        const worldX = (screenX - this.width/2) / this.scale + this.x;
+        const worldY = (screenY - this.height/2) / this.scale + this.y;
+        return { x: worldX, y: worldY };
+    }
 }
