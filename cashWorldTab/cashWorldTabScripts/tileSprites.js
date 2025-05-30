@@ -4,12 +4,19 @@ import { TILE_WIDTH, TILE_HEIGHT } from './tileMath.js';
 
 // Colors for each biome (replace with actual images if available)
 const biomeColors = {
-    desert: '#EDC9AF',
-    grassland: '#7CFC00',
-    forest: '#228B22',
-    plains: '#ADFF2F',
-    tundra: '#ADD8E6'
+  desert: '#EDC9AF',
+  grassland: '#7CFC00',
+  forest: '#228B22',
+  plains: '#ADFF2F',
+  tundra: '#ADD8E6',
+  ocean: '#1e90ff',
+  beach: '#f4e4bc',
+  swamp: '#556b2f',
+  jungle: '#006400',
+  darkforest: '#013220',
+  lake: '#87cefa'
 };
+
 
 // Draw a single tile (as a diamond) at screen (x,y)
 export function drawTile(ctx, biome, screenX, screenY, scale) {
