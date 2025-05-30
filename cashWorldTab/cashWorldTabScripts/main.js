@@ -6,7 +6,7 @@ import { ChunkManager } from './chunkManager.js';
 import { GridRenderer } from './gridRenderer.js';
 
 // Set up canvas
-const canvas = document.getElementById('gameCanvas');
+const canvas = document.getElementById('cash-world-canvas');
 const ctx = canvas.getContext('2d');
 
 // Initialize camera (handles pan/zoom) and input
