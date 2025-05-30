@@ -13,6 +13,13 @@ const ctx = canvas.getContext('2d');
 const camera = new Camera(canvas);
 const input = new InputHandler(camera, canvas);
 
+function updateCameraSize() {
+  camera.width = canvas.clientWidth;
+  camera.height = canvas.clientHeight;
+}
+window.addEventListener("resize", updateCameraSize);
+updateCameraSize(); // Run once initially
+
 // Game state
 let debugMode = false;            // Toggle for debug overlay
 let seed = Math.floor(Math.random() * 100000); // Initial random seed
