@@ -6,26 +6,32 @@ export class InputHandler {
         this.canvas = canvas;
         this.mousePos = { x: 0, y: 0 };  // Last mouse position
 
-        // Pan with arrow keys (could also use WASD)
+        // Pan with arrow keys (or WASD)
         window.addEventListener('keydown', (e) => {
             const panSpeed = 20;
             switch(e.key) {
-                case 'ArrowUp':    this.camera.pan(0, -panSpeed); break;
-                case 'ArrowDown':  this.camera.pan(0,  panSpeed); break;
-                case 'ArrowLeft':  this.camera.pan(-panSpeed, 0); break;
-                case 'ArrowRight': this.camera.pan( panSpeed, 0); break;
+                case 'ArrowUp':
+                case 'w': this.camera.pan(0, -panSpeed); break;
+                case 'ArrowDown':
+                case 's': this.camera.pan(0, panSpeed); break;
+                case 'ArrowLeft':
+                case 'a': this.camera.pan(-panSpeed, 0); break;
+                case 'ArrowRight':
+                case 'd': this.camera.pan(panSpeed, 0); break;
             }
         });
 
-        // Track mouse for debug overlay
+        // Track mouse for debug overlay (accounting for canvas scale)
         canvas.addEventListener('mousemove', (e) => {
-            this.mousePos.x = e.offsetX;
-            this.mousePos.y = e.offsetY;
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            this.mousePos.x = (e.clientX - rect.left) * scaleX;
+            this.mousePos.y = (e.clientY - rect.top) * scaleY;
         });
     }
 
-    // Placeholder for any future updates (e.g. smooth continuous movement)
     update() {
-        // Could implement drag-to-pan here if desired
+        // Reserved for drag-pan or future inputs
     }
 }
