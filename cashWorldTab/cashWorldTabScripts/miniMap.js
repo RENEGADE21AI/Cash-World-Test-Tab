@@ -25,6 +25,7 @@ export class MiniMap {
         this.fullCanvas.style.border = '4px solid #fff';
         this.fullCanvas.style.background = '#111';
         this.fullCanvas.style.display = 'none';
+        this.fullCanvas.style.zIndex = '20';
         document.body.appendChild(this.fullCanvas);
 
         this.fullCtx = this.fullCanvas.getContext('2d');
@@ -75,35 +76,34 @@ export class MiniMap {
         ctx.strokeRect(viewRect.x, viewRect.y, viewRect.w, viewRect.h);
     }
 
-drawFullMap() {
-    const ctx = this.fullCtx;
-    ctx.clearRect(0, 0, this.fullCanvas.width, this.fullCanvas.height);
-    const tileScale = 2;
+    drawFullMap() {
+        const ctx = this.fullCtx;
+        ctx.clearRect(0, 0, this.fullCanvas.width, this.fullCanvas.height);
+        const tileScale = 2;
 
-    const keys = Array.from(this.chunkManager.tileData.cache.keys());
+        const keys = Array.from(this.chunkManager.tileData.cache.keys());
 
-    for (let key of keys) {
-        const match = key.match(/tiledata_\d+_(-?\d+)_(-?\d+)/);
-        if (!match) continue;
-        const [, cxStr, cyStr] = match;
-        const cx = parseInt(cxStr);
-        const cy = parseInt(cyStr);
+        for (let key of keys) {
+            const match = key.match(/tiledata_\d+_(-?\d+)_(-?\d+)/);
+            if (!match) continue;
+            const [, cxStr, cyStr] = match;
+            const cx = parseInt(cxStr);
+            const cy = parseInt(cyStr);
 
-        const chunk = this.chunkManager.tileData.getChunk(cx, cy);
-        if (!chunk) continue;
+            const chunk = this.chunkManager.tileData.getChunk(cx, cy);
+            if (!chunk) continue;
 
-        for (let y = 0; y < chunk.length; y++) {
-            for (let x = 0; x < chunk[0].length; x++) {
-                const tile = chunk[y][x];
-                const tx = cx * 16 + x;
-                const ty = cy * 16 + y;
-                ctx.fillStyle = biomeColors[tile.biome] || '#444';
-                ctx.fillRect(tx * tileScale, ty * tileScale, tileScale, tileScale);
+            for (let y = 0; y < chunk.length; y++) {
+                for (let x = 0; x < chunk[0].length; x++) {
+                    const tile = chunk[y][x];
+                    const tx = cx * 16 + x;
+                    const ty = cy * 16 + y;
+                    ctx.fillStyle = biomeColors[tile.biome] || '#444';
+                    ctx.fillRect(tx * tileScale, ty * tileScale, tileScale, tileScale);
+                }
             }
         }
     }
-}
-
 
     update() {
         this.drawMinimap();
