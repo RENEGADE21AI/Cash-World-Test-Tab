@@ -2,8 +2,7 @@
 
 import { TILE_WIDTH, TILE_HEIGHT } from './tileMath.js';
 
-// Colors for each biome (replace with actual images if available)
-const biomeColors = {
+export const biomeColors = {
   desert: '#EDC9AF',
   grassland: '#7CFC00',
   forest: '#228B22',
