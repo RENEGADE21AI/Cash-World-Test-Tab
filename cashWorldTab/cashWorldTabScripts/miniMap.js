@@ -1,4 +1,4 @@
-// miniMap.js - Minimap and full world map rendering
+// miniMap.js - Enhanced Minimap and Full World Map
 
 import { TILE_WIDTH, TILE_HEIGHT } from './tileMath.js';
 import { biomeColors } from './tileSprites.js';
@@ -10,10 +10,11 @@ export class MiniMap {
         this.chunkManager = chunkManager;
         this.camera = camera;
 
-        this.size = 200; // square minimap
-        this.scale = 2;  // pixels per tile
+        this.size = 200;
+        this.scale = 2;
         this.fullMapVisible = false;
 
+        // World Map Overlay
         this.fullCanvas = document.createElement('canvas');
         this.fullCanvas.width = 800;
         this.fullCanvas.height = 800;
@@ -26,11 +27,12 @@ export class MiniMap {
         this.fullCanvas.style.display = 'none';
         this.fullCanvas.style.zIndex = '20';
 
-        document.getElementById("screen-container").appendChild(this.fullCanvas);
-
+        document.querySelector('.game-content').appendChild(this.fullCanvas);
         this.fullCtx = this.fullCanvas.getContext('2d');
 
         canvas.addEventListener('click', () => this.toggleFullMap());
+        this.fullCanvas.addEventListener('click', (e) => this.handleFullMapClick(e));
+
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && this.fullMapVisible) {
                 this.fullCanvas.style.display = 'none';
@@ -49,9 +51,8 @@ export class MiniMap {
         ctx.clearRect(0, 0, this.size, this.size);
         const tileScale = this.scale;
 
-        const allKeys = Array.from(this.chunkManager.tileData.cache.keys());
-
-        for (let key of allKeys) {
+        const keys = Array.from(this.chunkManager.tileData.cache.keys());
+        for (let key of keys) {
             const match = key.match(/tiledata_\d+_(-?\d+)_(-?\d+)/);
             if (!match) continue;
             const [, cxStr, cyStr] = match;
@@ -71,15 +72,13 @@ export class MiniMap {
             }
         }
 
-        // Draw camera view rectangle
+        // Draw camera view
         ctx.strokeStyle = 'red';
         ctx.lineWidth = 1;
-        const view = this.camera;
-        const x = view.x / TILE_WIDTH;
-        const y = view.y / TILE_HEIGHT;
-        const w = view.width / TILE_WIDTH;
-        const h = view.height / TILE_HEIGHT;
-
+        const x = this.camera.x / TILE_WIDTH;
+        const y = this.camera.y / TILE_HEIGHT;
+        const w = this.camera.width / TILE_WIDTH;
+        const h = this.camera.height / TILE_HEIGHT;
         ctx.strokeRect(x * tileScale, y * tileScale, w * tileScale, h * tileScale);
     }
 
@@ -89,14 +88,12 @@ export class MiniMap {
         const tileScale = 2;
 
         const keys = Array.from(this.chunkManager.tileData.cache.keys());
-
         for (let key of keys) {
             const match = key.match(/tiledata_\d+_(-?\d+)_(-?\d+)/);
             if (!match) continue;
             const [, cxStr, cyStr] = match;
             const cx = parseInt(cxStr);
             const cy = parseInt(cyStr);
-
             const chunk = this.chunkManager.tileData.getChunk(cx, cy);
             if (!chunk) continue;
 
@@ -110,12 +107,34 @@ export class MiniMap {
                 }
             }
         }
+
+        // Draw current camera view
+        const camX = this.camera.x / TILE_WIDTH;
+        const camY = this.camera.y / TILE_HEIGHT;
+        const camW = this.camera.width / TILE_WIDTH;
+        const camH = this.camera.height / TILE_HEIGHT;
+
+        ctx.strokeStyle = 'red';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(camX * tileScale, camY * tileScale, camW * tileScale, camH * tileScale);
+    }
+
+    handleFullMapClick(e) {
+        const rect = this.fullCanvas.getBoundingClientRect();
+        const scale = 2;
+        const tx = Math.floor((e.clientX - rect.left) / scale);
+        const ty = Math.floor((e.clientY - rect.top) / scale);
+
+        // Move camera to center on this tile
+        const worldX = (tx + 0.5) * TILE_WIDTH;
+        const worldY = (ty + 0.5) * TILE_HEIGHT;
+        this.camera.x = worldX;
+        this.camera.y = worldY;
+        this.toggleFullMap();
     }
 
     update() {
         this.drawMinimap();
-        if (this.fullMapVisible) {
-            this.drawFullMap();
-        }
+        if (this.fullMapVisible) this.drawFullMap();
     }
 }
