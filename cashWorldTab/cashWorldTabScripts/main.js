@@ -35,7 +35,7 @@ miniMapCanvas.style.right = '20px';
 miniMapCanvas.style.border = '2px solid #fff';
 miniMapCanvas.style.background = '#000';
 miniMapCanvas.style.zIndex = '10';
-document.body.appendChild(miniMapCanvas);
+document.querySelector('.game-content').appendChild(miniMapCanvas);
 
 const minimap = new MiniMap(miniMapCanvas, chunkManager, camera);
 
