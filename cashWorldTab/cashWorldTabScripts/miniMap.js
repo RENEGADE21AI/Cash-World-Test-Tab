@@ -1,7 +1,6 @@
 // miniMap.js - Minimap and full world map rendering
 
 import { TILE_WIDTH, TILE_HEIGHT } from './tileMath.js';
-import { isoToScreen } from './tileMath.js';
 import { biomeColors } from './tileSprites.js';
 
 export class MiniMap {
@@ -26,7 +25,8 @@ export class MiniMap {
         this.fullCanvas.style.background = '#111';
         this.fullCanvas.style.display = 'none';
         this.fullCanvas.style.zIndex = '20';
-        document.body.appendChild(this.fullCanvas);
+
+        document.getElementById("screen-container").appendChild(this.fullCanvas);
 
         this.fullCtx = this.fullCanvas.getContext('2d');
 
@@ -49,16 +49,24 @@ export class MiniMap {
         ctx.clearRect(0, 0, this.size, this.size);
         const tileScale = this.scale;
 
-        for (let key of this.chunkManager.loadedChunks.keys()) {
-            const [cx, cy] = key.split(',').map(Number);
-            const chunk = this.chunkManager.loadedChunks.get(key);
+        const allKeys = Array.from(this.chunkManager.tileData.cache.keys());
+
+        for (let key of allKeys) {
+            const match = key.match(/tiledata_\d+_(-?\d+)_(-?\d+)/);
+            if (!match) continue;
+            const [, cxStr, cyStr] = match;
+            const cx = parseInt(cxStr);
+            const cy = parseInt(cyStr);
+            const chunk = this.chunkManager.tileData.getChunk(cx, cy);
+            if (!chunk) continue;
+
             for (let y = 0; y < chunk.length; y++) {
                 for (let x = 0; x < chunk[0].length; x++) {
                     const tile = chunk[y][x];
                     const tx = cx * 16 + x;
                     const ty = cy * 16 + y;
                     ctx.fillStyle = biomeColors[tile.biome] || '#444';
-                    ctx.fillRect(tx * tileScale % this.size, ty * tileScale % this.size, tileScale, tileScale);
+                    ctx.fillRect(tx * tileScale, ty * tileScale, tileScale, tileScale);
                 }
             }
         }
@@ -67,13 +75,12 @@ export class MiniMap {
         ctx.strokeStyle = 'red';
         ctx.lineWidth = 1;
         const view = this.camera;
-        const viewRect = {
-            x: Math.floor(view.x * tileScale / TILE_WIDTH),
-            y: Math.floor(view.y * tileScale / TILE_HEIGHT),
-            w: Math.floor(view.width * tileScale / TILE_WIDTH),
-            h: Math.floor(view.height * tileScale / TILE_HEIGHT)
-        };
-        ctx.strokeRect(viewRect.x, viewRect.y, viewRect.w, viewRect.h);
+        const x = view.x / TILE_WIDTH;
+        const y = view.y / TILE_HEIGHT;
+        const w = view.width / TILE_WIDTH;
+        const h = view.height / TILE_HEIGHT;
+
+        ctx.strokeRect(x * tileScale, y * tileScale, w * tileScale, h * tileScale);
     }
 
     drawFullMap() {
