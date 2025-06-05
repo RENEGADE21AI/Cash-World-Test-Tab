@@ -1,4 +1,4 @@
-// miniMap.js - Smart Minimap and Full Map
+// miniMap.js - Smart Minimap with Camera Box, Zoom, and Map Navigation
 
 import { TILE_WIDTH, TILE_HEIGHT } from './tileMath.js';
 import { biomeColors } from './tileSprites.js';
@@ -11,7 +11,7 @@ export class MiniMap {
         this.camera = camera;
 
         this.size = 200;
-        this.scale = 2; // adjustable zoom level
+        this.scale = 2; // Initial zoom level (tiles per pixel)
         this.fullMapVisible = false;
 
         this.fullCanvas = document.createElement('canvas');
@@ -34,12 +34,14 @@ export class MiniMap {
 
         // Escape to close full map
         window.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && this.fullMapVisible) {
-                this.fullCanvas.style.display = 'none';
-                this.fullMapVisible = false;
-            }
-            if (e.key === '+') this.scale = Math.min(8, this.scale + 1);
-            if (e.key === '-') this.scale = Math.max(1, this.scale - 1);
+            if (e.key === 'Escape') this.hideFullMap();
+        });
+
+        // Mousewheel zoom
+        canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const delta = e.deltaY < 0 ? 1 : -1;
+            this.scale = Math.max(1, Math.min(8, this.scale + delta));
         });
     }
 
@@ -48,16 +50,18 @@ export class MiniMap {
         this.fullCanvas.style.display = this.fullMapVisible ? 'block' : 'none';
     }
 
+    hideFullMap() {
+        this.fullMapVisible = false;
+        this.fullCanvas.style.display = 'none';
+    }
+
     drawMinimap() {
         const ctx = this.ctx;
         ctx.clearRect(0, 0, this.size, this.size);
         const tileScale = this.scale;
 
-        // World center
         const camTileX = this.camera.x / TILE_WIDTH;
         const camTileY = this.camera.y / TILE_HEIGHT;
-
-        const viewHalfTiles = this.size / (2 * tileScale);
 
         const keys = Array.from(this.chunkManager.tileData.cache.keys());
         for (let key of keys) {
@@ -78,13 +82,15 @@ export class MiniMap {
                     const dx = (tx - camTileX) * tileScale + this.size / 2;
                     const dy = (ty - camTileY) * tileScale + this.size / 2;
 
+                    if (dx < 0 || dx >= this.size || dy < 0 || dy >= this.size) continue;
+
                     ctx.fillStyle = biomeColors[tile.biome] || '#444';
                     ctx.fillRect(dx, dy, tileScale, tileScale);
                 }
             }
         }
 
-        // Draw camera view rectangle
+        // Red camera box
         const viewWidth = this.camera.width / TILE_WIDTH;
         const viewHeight = this.camera.height / TILE_HEIGHT;
         const viewX = this.size / 2 - (viewWidth / 2) * tileScale;
@@ -93,6 +99,12 @@ export class MiniMap {
         ctx.strokeStyle = 'red';
         ctx.lineWidth = 1;
         ctx.strokeRect(viewX, viewY, viewWidth * tileScale, viewHeight * tileScale);
+
+        // Center dot for player
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(this.size / 2, this.size / 2, 3, 0, Math.PI * 2);
+        ctx.fill();
     }
 
     drawFullMap() {
@@ -121,7 +133,7 @@ export class MiniMap {
             }
         }
 
-        // Red camera box
+        // Red box for camera view
         const camX = this.camera.x / TILE_WIDTH;
         const camY = this.camera.y / TILE_HEIGHT;
         const camW = this.camera.width / TILE_WIDTH;
@@ -143,13 +155,11 @@ export class MiniMap {
         this.camera.x = worldX;
         this.camera.y = worldY;
 
-        this.toggleFullMap();
+        this.hideFullMap();
     }
 
     update() {
         this.drawMinimap();
-        if (this.fullMapVisible) {
-            this.drawFullMap();
-        }
+        if (this.fullMapVisible) this.drawFullMap();
     }
 }
