@@ -1,10 +1,12 @@
 // main.js - Game loop and initialization
 
+import './biomeImageLoader.js'; // To ensure the image is loaded early
 import { Camera } from './camera.js';
 import { InputHandler } from './input.js';
 import { ChunkManager } from './chunkManager.js';
 import { GridRenderer } from './gridRenderer.js';
 import { MiniMap } from './miniMap.js';
+
 
 const canvas = document.getElementById('cash-world-canvas');
 const ctx = canvas.getContext('2d');
