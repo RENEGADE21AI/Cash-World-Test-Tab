@@ -1,3 +1,4 @@
+// chunkManager.js
 import { getBiomeFromImage, loadBiomeImage } from './biomeImageLoader.js';
 import { TileData } from './tileData.js';
 import { screenToIso } from './tileMath.js';
@@ -89,13 +90,8 @@ export class ChunkManager {
       for (let tx = 0; tx < size; tx++) {
         const globalX = cx * size + tx;
         const globalY = cy * size + ty;
-
         const biome = getBiomeFromImage(globalX, globalY);
-        data[ty][tx] = {
-          temp: 0.5,
-          humidity: 0.5,
-          biome
-        };
+        data[ty][tx] = { biome };
       }
     }
 
