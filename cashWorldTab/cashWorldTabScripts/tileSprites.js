@@ -1,36 +1,30 @@
-// tileSprites.js - Manage tile drawing (placeholder colors)
-
+// tileSprites.js
 import { TILE_WIDTH, TILE_HEIGHT } from './tileMath.js';
 
 export const biomeColors = {
-  desert: '#EDC9AF',
-  grassland: '#7CFC00',
-  forest: '#228B22',
-  plains: '#ADFF2F',
-  tundra: '#ADD8E6',
-  ocean: '#1e90ff',
-  beach: '#f4e4bc',
-  swamp: '#556b2f',
-  jungle: '#006400',
-  darkforest: '#013220',
-  lake: '#87cefa'
+  desert: "#e2ca76",
+  coniferous_forest: "#2f9a01",
+  grassland: "#8dd031",
+  deciduous_forest: "#37b500",
+  rainforest: "#157f15",
+  tundra: "#dce1e1",
+  shrubland: "#aacb4b",
+  ocean: "#3d85c6"
 };
 
-
-// Draw a single tile (as a diamond) at screen (x,y)
 export function drawTile(ctx, biome, screenX, screenY, scale) {
-    ctx.save();
-    ctx.translate(screenX, screenY);
-    ctx.scale(scale, scale);
-    ctx.fillStyle = biomeColors[biome] || 'gray';
-    ctx.beginPath();
-    ctx.moveTo(0, -TILE_HEIGHT/2);
-    ctx.lineTo(TILE_WIDTH/2, 0);
-    ctx.lineTo(0, TILE_HEIGHT/2);
-    ctx.lineTo(-TILE_WIDTH/2, 0);
-    ctx.closePath();
-    ctx.fill();
-    ctx.strokeStyle = '#333';
-    ctx.stroke();
-    ctx.restore();
+  ctx.save();
+  ctx.translate(screenX, screenY);
+  ctx.scale(scale, scale);
+  ctx.fillStyle = biomeColors[biome] || 'gray';
+  ctx.beginPath();
+  ctx.moveTo(0, -TILE_HEIGHT / 2);
+  ctx.lineTo(TILE_WIDTH / 2, 0);
+  ctx.lineTo(0, TILE_HEIGHT / 2);
+  ctx.lineTo(-TILE_WIDTH / 2, 0);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = '#333';
+  ctx.stroke();
+  ctx.restore();
 }
