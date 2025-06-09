@@ -38,3 +38,25 @@ export function getBiomeFromImage(x, y) {
 function rgbToHex(r, g, b) {
     return "#" + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('');
 }
+
+export function findLandSpawn(callback) {
+    if (!imageData) return callback(0, 0);
+
+    for (let i = 0; i < 1000; i++) {
+        const x = Math.floor(Math.random() * biomeImage.width);
+        const y = Math.floor(Math.random() * biomeImage.height);
+        const index = (y * biomeImage.width + x) * 4;
+        const r = imageData[index];
+        const g = imageData[index + 1];
+        const b = imageData[index + 2];
+        const hex = rgbToHex(r, g, b).toLowerCase();
+        const biome = biomeColorMap[hex] || 'ocean';
+
+        if (biome !== 'ocean') {
+            // Convert to world coords
+            callback(x * TILE_WIDTH, y * TILE_HEIGHT);
+            return;
+        }
+    }
+    callback(0, 0); // fallback
+}
