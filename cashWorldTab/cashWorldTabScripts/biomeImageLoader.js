@@ -42,6 +42,7 @@ function rgbToHex(r, g, b) {
 export function findLandSpawn(callback) {
     if (!imageData) return callback(0, 0);
 
+    // Try 1000 random samples first
     for (let i = 0; i < 1000; i++) {
         const x = Math.floor(Math.random() * biomeImage.width);
         const y = Math.floor(Math.random() * biomeImage.height);
@@ -53,10 +54,27 @@ export function findLandSpawn(callback) {
         const biome = biomeColorMap[hex] || 'ocean';
 
         if (biome !== 'ocean') {
-            // Convert to world coords
             callback(x * TILE_WIDTH, y * TILE_HEIGHT);
             return;
         }
     }
-    callback(0, 0); // fallback
+
+    // Fallback: scan top-left to bottom-right
+    for (let y = 0; y < biomeImage.height; y++) {
+        for (let x = 0; x < biomeImage.width; x++) {
+            const index = (y * biomeImage.width + x) * 4;
+            const r = imageData[index];
+            const g = imageData[index + 1];
+            const b = imageData[index + 2];
+            const hex = rgbToHex(r, g, b).toLowerCase();
+            const biome = biomeColorMap[hex] || 'ocean';
+            if (biome !== 'ocean') {
+                callback(x * TILE_WIDTH, y * TILE_HEIGHT);
+                return;
+            }
+        }
+    }
+
+    // Absolute fallback
+    callback(0, 0);
 }
