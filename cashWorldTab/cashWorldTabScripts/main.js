@@ -1,12 +1,11 @@
-// main.js - Game loop and initialization
+// main.js - Entry point and game loop
 
-import './biomeImageLoader.js'; // To ensure the image is loaded early
 import { Camera } from './camera.js';
 import { InputHandler } from './input.js';
 import { ChunkManager } from './chunkManager.js';
 import { GridRenderer } from './gridRenderer.js';
 import { MiniMap } from './miniMap.js';
-
+import { loadBiomeImage, findLandSpawn } from './biomeImageLoader.js';
 
 const canvas = document.getElementById('cash-world-canvas');
 const ctx = canvas.getContext('2d');
@@ -19,14 +18,14 @@ function updateCameraSize() {
     camera.height = canvas.height;
 }
 window.addEventListener("resize", updateCameraSize);
-updateCameraSize(); // Initial sync
+updateCameraSize();
 
 let debugMode = false;
 let seed = Math.floor(Math.random() * 100000);
 const chunkManager = new ChunkManager(seed);
 const gridRenderer = new GridRenderer(ctx, camera, chunkManager, input);
 
-// Add MiniMap overlay canvas
+// Create and position minimap
 const miniMapCanvas = document.createElement('canvas');
 miniMapCanvas.width = 200;
 miniMapCanvas.height = 200;
@@ -41,14 +40,25 @@ document.querySelector('.game-content').appendChild(miniMapCanvas);
 
 const minimap = new MiniMap(miniMapCanvas, chunkManager, camera);
 
-// Keyboard controls
 window.addEventListener('keydown', (e) => {
     if (e.key.toLowerCase() === 'f') debugMode = !debugMode;
     if (e.key.toLowerCase() === 'r') {
         seed = Math.floor(Math.random() * 100000);
         chunkManager.reset(seed);
         debugMode = false;
+        findLandSpawn((x, y) => {
+            camera.x = x;
+            camera.y = y;
+        });
     }
+});
+
+loadBiomeImage(() => {
+    findLandSpawn((x, y) => {
+        camera.x = x;
+        camera.y = y;
+        requestAnimationFrame(gameLoop);
+    });
 });
 
 function gameLoop() {
@@ -58,7 +68,6 @@ function gameLoop() {
     gridRenderer.renderChunks();
     if (debugMode) gridRenderer.renderDebugInfo();
     if (chunkManager.isLoading()) gridRenderer.renderLoadingOverlay();
-    minimap.update(); // render minimap + world map
+    minimap.update();
     requestAnimationFrame(gameLoop);
 }
-requestAnimationFrame(gameLoop);
